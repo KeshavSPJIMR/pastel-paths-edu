@@ -248,12 +248,7 @@ export function CurriculumUploadDialog({ onCurriculumUploaded }: CurriculumUploa
     setIsProcessing(true);
 
     try {
-      // TODO: Connect to QuizGen Engine API endpoint
-      // For now, this will call an API endpoint that uses the QuizGen Engine
-      // The QuizGen Engine is in the server folder and should be exposed via API
-      
-      // Example API call (replace with actual endpoint):
-      /*
+      // Call QuizGen Engine API endpoint
       const response = await fetch('/api/generate-quiz', {
         method: 'POST',
         headers: {
@@ -266,31 +261,38 @@ export function CurriculumUploadDialog({ onCurriculumUploaded }: CurriculumUploa
           curriculumStandard: curriculumStandard || undefined,
           numberOfQuestions: 5,
           difficulty: 'medium',
+          // TODO: Get teacherId from auth context
+          // teacherId: currentUser?.id,
         }),
       });
 
       if (!response.ok) {
-        throw new Error('Failed to generate quiz');
+        const errorData = await response.json().catch(() => ({ message: 'Failed to generate quiz' }));
+        throw new Error(errorData.message || errorData.error || 'Failed to generate quiz');
       }
 
-      const quiz = await response.json();
-      */
+      const result = await response.json();
+      const { quiz, assignment, metadata } = result;
 
-      // Temporary: Show success message and log curriculum text
-      toast.success("Quiz generation initiated!", {
-        description: `Processing curriculum for ${subjectLabels[subject] || subject} (${gradeLabels[gradeLevel] || gradeLevel}). The AI will analyze the content and generate questions.`,
+      // Show success message
+      toast.success("Quiz generated successfully!", {
+        description: `Generated ${quiz.questions.length} questions for ${subjectLabels[subject] || subject} (${gradeLabels[gradeLevel] || gradeLevel}).`,
+        duration: 5000,
       });
 
-      console.log("Curriculum content for quiz generation:", {
-        fileName: file?.name,
-        subject,
-        gradeLevel,
-        curriculumStandard,
-        contentLength: fileContent.length,
-        preview: fileContent.substring(0, 200),
-      });
+      // Log quiz result
+      console.log("Generated quiz:", quiz);
+      console.log("Saved assignment:", assignment);
 
-      // Notify parent that quiz generation was initiated
+      // If quiz was saved to database, show assignment ID
+      if (assignment?.id) {
+        toast.info("Quiz saved to database", {
+          description: `Assignment ID: ${assignment.id}. You can now assign this quiz to students.`,
+          duration: 5000,
+        });
+      }
+
+      // Notify parent that quiz was generated
       onCurriculumUploaded?.(
         {
           name: file?.name || 'curriculum.txt',
@@ -302,15 +304,23 @@ export function CurriculumUploadDialog({ onCurriculumUploaded }: CurriculumUploa
         gradeLevel
       );
 
-      // TODO: Implement actual quiz generation via API
-      // TODO: Save generated quiz to database
-      // TODO: Show quiz preview or redirect to quiz creation page
+      // TODO: Show quiz preview in a modal or redirect to quiz editor
+      // For now, we'll just show success and the quiz is saved to database
+
+      // Reset form after successful generation
+      handleRemoveFile();
+      setSubject("");
+      setGradeLevel("");
+      setCurriculumStandard("");
+      setOpen(false);
 
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : "Failed to generate quiz";
       toast.error("Quiz generation failed", {
         description: errorMessage,
+        duration: 5000,
       });
+      console.error("Quiz generation error:", error);
     } finally {
       setIsProcessing(false);
     }
