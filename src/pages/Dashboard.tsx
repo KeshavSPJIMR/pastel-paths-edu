@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { StatCard } from "@/components/dashboard/StatCard";
 import { QuickActionCard } from "@/components/dashboard/QuickActionCard";
+import { PerformanceHeatmap } from "@/components/dashboard/PerformanceHeatmap";
 
 export default function Dashboard() {
   return (
@@ -51,6 +52,9 @@ export default function Dashboard() {
           gradient="sunny"
         />
       </div>
+
+      {/* Performance Heatmap */}
+      <PerformanceHeatmap />
 
       {/* Quick Actions */}
       <div>
