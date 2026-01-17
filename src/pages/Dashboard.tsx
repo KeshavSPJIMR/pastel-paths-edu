@@ -11,14 +11,18 @@ import {
 import { StatCard } from "@/components/dashboard/StatCard";
 import { QuickActionCard } from "@/components/dashboard/QuickActionCard";
 import { PerformanceHeatmap } from "@/components/dashboard/PerformanceHeatmap";
+import { CreateStudentDialog } from "@/components/students/CreateStudentDialog";
 
 export default function Dashboard() {
   return (
     <div className="max-w-7xl mx-auto space-y-8">
       {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold text-foreground">Good morning, Ms. Johnson! 👋</h1>
-        <p className="text-muted-foreground mt-1">Here's what's happening in your classroom today.</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-foreground">Good morning, Ms. Johnson! 👋</h1>
+          <p className="text-muted-foreground mt-1">Here's what's happening in your classroom today.</p>
+        </div>
+        <CreateStudentDialog />
       </div>
 
       {/* Stats Grid */}
