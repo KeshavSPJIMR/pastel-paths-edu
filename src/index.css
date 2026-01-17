@@ -2,95 +2,126 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&display=swap');
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    /* Soft pastel palette for K-5 education */
+    --background: 40 33% 98%;
+    --foreground: 220 25% 20%;
 
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 220 25% 20%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover-foreground: 220 25% 20%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    /* Soft coral - warm, friendly primary */
+    --primary: 12 85% 68%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    /* Soft mint - fresh, calming secondary */
+    --secondary: 160 45% 75%;
+    --secondary-foreground: 160 45% 20%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    /* Cream muted backgrounds */
+    --muted: 40 25% 94%;
+    --muted-foreground: 220 15% 45%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    /* Soft lavender accent for AI features */
+    --accent: 260 50% 80%;
+    --accent-foreground: 260 50% 25%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    /* Soft sky blue for info/progress */
+    --info: 200 80% 75%;
+    --info-foreground: 200 80% 20%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    /* Soft yellow for achievements/stars */
+    --warning: 45 90% 70%;
+    --warning-foreground: 45 90% 20%;
 
-    --radius: 0.5rem;
+    /* Soft green for success */
+    --success: 145 55% 65%;
+    --success-foreground: 145 55% 15%;
 
-    --sidebar-background: 0 0% 98%;
+    --destructive: 0 70% 65%;
+    --destructive-foreground: 0 0% 100%;
 
-    --sidebar-foreground: 240 5.3% 26.1%;
+    --border: 40 20% 88%;
+    --input: 40 20% 88%;
+    --ring: 12 85% 68%;
 
-    --sidebar-primary: 240 5.9% 10%;
+    --radius: 1rem;
 
-    --sidebar-primary-foreground: 0 0% 98%;
+    /* Sidebar - slightly tinted */
+    --sidebar-background: 40 30% 96%;
+    --sidebar-foreground: 220 25% 25%;
+    --sidebar-primary: 12 85% 68%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 260 50% 92%;
+    --sidebar-accent-foreground: 260 50% 25%;
+    --sidebar-border: 40 20% 88%;
+    --sidebar-ring: 12 85% 68%;
 
-    --sidebar-accent: 240 4.8% 95.9%;
+    /* Custom gradients */
+    --gradient-coral: linear-gradient(135deg, hsl(12 85% 68%), hsl(20 80% 72%));
+    --gradient-mint: linear-gradient(135deg, hsl(160 45% 75%), hsl(170 50% 70%));
+    --gradient-lavender: linear-gradient(135deg, hsl(260 50% 80%), hsl(280 45% 78%));
+    --gradient-sky: linear-gradient(135deg, hsl(200 80% 75%), hsl(210 75% 72%));
+    --gradient-sunny: linear-gradient(135deg, hsl(45 90% 70%), hsl(35 85% 72%));
 
-    --sidebar-accent-foreground: 240 5.9% 10%;
-
-    --sidebar-border: 220 13% 91%;
-
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    /* Shadows */
+    --shadow-soft: 0 4px 20px -4px hsl(220 25% 20% / 0.08);
+    --shadow-card: 0 2px 12px -2px hsl(220 25% 20% / 0.06);
+    --shadow-hover: 0 8px 30px -6px hsl(220 25% 20% / 0.12);
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
+    --background: 220 25% 12%;
+    --foreground: 40 20% 95%;
 
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
+    --card: 220 25% 16%;
+    --card-foreground: 40 20% 95%;
 
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 220 25% 16%;
+    --popover-foreground: 40 20% 95%;
 
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
+    --primary: 12 75% 60%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: 160 35% 35%;
+    --secondary-foreground: 160 35% 90%;
 
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
+    --muted: 220 20% 20%;
+    --muted-foreground: 220 15% 65%;
 
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
+    --accent: 260 40% 40%;
+    --accent-foreground: 260 40% 95%;
 
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
+    --info: 200 60% 45%;
+    --info-foreground: 200 80% 95%;
 
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
+    --warning: 45 70% 50%;
+    --warning-foreground: 45 90% 95%;
+
+    --success: 145 45% 40%;
+    --success-foreground: 145 55% 95%;
+
+    --destructive: 0 60% 50%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 220 20% 25%;
+    --input: 220 20% 25%;
+    --ring: 12 75% 60%;
+
+    --sidebar-background: 220 25% 14%;
+    --sidebar-foreground: 40 20% 90%;
+    --sidebar-primary: 12 75% 60%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-accent: 260 40% 30%;
+    --sidebar-accent-foreground: 260 40% 95%;
+    --sidebar-border: 220 20% 25%;
+    --sidebar-ring: 12 75% 60%;
   }
 }
 
@@ -100,6 +131,38 @@ All colors MUST be HSL.
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-sans antialiased;
+    font-family: 'Nunito', system-ui, sans-serif;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-bold tracking-tight;
+  }
+}
+
+@layer utilities {
+  .gradient-coral {
+    background: var(--gradient-coral);
+  }
+  .gradient-mint {
+    background: var(--gradient-mint);
+  }
+  .gradient-lavender {
+    background: var(--gradient-lavender);
+  }
+  .gradient-sky {
+    background: var(--gradient-sky);
+  }
+  .gradient-sunny {
+    background: var(--gradient-sunny);
+  }
+  .shadow-soft {
+    box-shadow: var(--shadow-soft);
+  }
+  .shadow-card {
+    box-shadow: var(--shadow-card);
+  }
+  .shadow-hover {
+    box-shadow: var(--shadow-hover);
   }
 }
