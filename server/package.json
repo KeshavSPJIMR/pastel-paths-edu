@@ -1,0 +1,29 @@
+{
+  "name": "@pastel-paths-edu/ai-service",
+  "version": "1.0.0",
+  "description": "AI service for K-5 LMS with QuizGen, Grading, and Privacy Guard",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "node --loader ts-node/esm test/*.test.ts"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@types/node": "^22.16.5",
+    "typescript": "^5.8.3"
+  },
+  "keywords": [
+    "education",
+    "lms",
+    "ai",
+    "quiz-generation",
+    "grading",
+    "privacy"
+  ],
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
