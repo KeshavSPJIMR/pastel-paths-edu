@@ -1,10 +1,20 @@
-import { useState } from "react";
-import { ArrowLeft, FileDown, CheckSquare, Sparkles } from "lucide-react";
+import { useState, useRef } from "react";
+import { ArrowLeft, FileDown, CheckSquare, Sparkles, Upload, Users, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import jsPDF from "jspdf";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface Question {
   id: number;
@@ -66,10 +76,24 @@ const quizQuestions: Question[] = [
   { id: 50, question: "Puranpoli is a sweet roti made of:", options: ["Rice and sugar", "Jaggery and gram (dal)", "Wheat and honey", "Corn and milk"], answer: "Jaggery and gram (dal)" },
 ];
 
+interface StudentGrade {
+  name: string;
+  fileName: string;
+  answers: { [questionId: number]: string };
+  score: number;
+  total: number;
+  percentage: number;
+}
+
 export default function QuizGenerator() {
   const navigate = useNavigate();
   const [selectedQuestions, setSelectedQuestions] = useState<Set<number>>(new Set());
   const [includeAnswers, setIncludeAnswers] = useState(false);
+  const [gradingDialogOpen, setGradingDialogOpen] = useState(false);
+  const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
+  const [studentGrades, setStudentGrades] = useState<StudentGrade[]>([]);
+  const [isGrading, setIsGrading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const toggleQuestion = (id: number) => {
     setSelectedQuestions(prev => {
@@ -170,6 +194,212 @@ export default function QuizGenerator() {
     toast.success("Quiz PDF downloaded successfully!");
   };
 
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (files) {
+      setUploadedFiles(Array.from(files));
+    }
+  };
+
+  const simulateGrading = () => {
+    if (uploadedFiles.length === 0) {
+      toast.error("Please upload at least one answer sheet");
+      return;
+    }
+
+    setIsGrading(true);
+
+    // Simulate AI grading with random but realistic results
+    const studentNames = [
+      "Aarav Sharma", "Priya Patel", "Rohan Singh", "Ananya Gupta", 
+      "Vihaan Kumar", "Ishita Reddy", "Arjun Nair", "Diya Verma",
+      "Krishna Iyer", "Saanvi Joshi", "Aditya Rao", "Meera Kapoor"
+    ];
+
+    const grades: StudentGrade[] = uploadedFiles.map((file, index) => {
+      const studentName = studentNames[index % studentNames.length] || `Student ${index + 1}`;
+      const answers: { [questionId: number]: string } = {};
+      let correctCount = 0;
+
+      // Simulate answers for each question
+      quizQuestions.forEach((q) => {
+        const isCorrect = Math.random() > 0.3; // 70% chance of correct answer
+        if (isCorrect) {
+          answers[q.id] = q.answer;
+          correctCount++;
+        } else {
+          // Pick a random wrong answer
+          const wrongOptions = q.options.filter(opt => opt !== q.answer);
+          answers[q.id] = wrongOptions[Math.floor(Math.random() * wrongOptions.length)];
+        }
+      });
+
+      return {
+        name: studentName,
+        fileName: file.name,
+        answers,
+        score: correctCount,
+        total: quizQuestions.length,
+        percentage: Math.round((correctCount / quizQuestions.length) * 100)
+      };
+    });
+
+    setTimeout(() => {
+      setStudentGrades(grades);
+      setIsGrading(false);
+      toast.success(`Graded ${grades.length} answer sheets successfully!`);
+    }, 1500);
+  };
+
+  const getScoreColor = (percentage: number): [number, number, number] => {
+    if (percentage >= 80) return [46, 204, 113]; // Green
+    if (percentage >= 60) return [241, 196, 15]; // Yellow
+    if (percentage >= 40) return [230, 126, 34]; // Orange
+    return [231, 76, 60]; // Red
+  };
+
+  const getScoreColorHex = (percentage: number): string => {
+    if (percentage >= 80) return "#2ecc71";
+    if (percentage >= 60) return "#f1c40f";
+    if (percentage >= 40) return "#e67e22";
+    return "#e74c3c";
+  };
+
+  const generateGradesPDF = () => {
+    if (studentGrades.length === 0) {
+      toast.error("No grades to export");
+      return;
+    }
+
+    const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const margin = 15;
+    let yPosition = 20;
+
+    // Title
+    doc.setFontSize(20);
+    doc.setFont("helvetica", "bold");
+    doc.text("Student Grades Heatmap", pageWidth / 2, yPosition, { align: "center" });
+    yPosition += 10;
+
+    doc.setFontSize(12);
+    doc.setFont("helvetica", "normal");
+    doc.text("NCERT Class 5 Science Quiz Results", pageWidth / 2, yPosition, { align: "center" });
+    yPosition += 15;
+
+    // Legend
+    doc.setFontSize(9);
+    doc.setFont("helvetica", "bold");
+    doc.text("Legend:", margin, yPosition);
+    
+    const legendItems = [
+      { color: [46, 204, 113] as [number, number, number], label: "80-100%" },
+      { color: [241, 196, 15] as [number, number, number], label: "60-79%" },
+      { color: [230, 126, 34] as [number, number, number], label: "40-59%" },
+      { color: [231, 76, 60] as [number, number, number], label: "0-39%" }
+    ];
+
+    let legendX = margin + 25;
+    legendItems.forEach((item) => {
+      doc.setFillColor(item.color[0], item.color[1], item.color[2]);
+      doc.rect(legendX, yPosition - 4, 10, 6, "F");
+      doc.setFont("helvetica", "normal");
+      doc.text(item.label, legendX + 12, yPosition);
+      legendX += 40;
+    });
+    yPosition += 15;
+
+    // Heatmap Header
+    const cellWidth = 35;
+    const cellHeight = 12;
+    const nameWidth = 50;
+
+    doc.setFillColor(240, 240, 240);
+    doc.rect(margin, yPosition, nameWidth, cellHeight, "F");
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(9);
+    doc.text("Student Name", margin + 2, yPosition + 8);
+
+    doc.rect(margin + nameWidth, yPosition, cellWidth, cellHeight, "F");
+    doc.text("Score", margin + nameWidth + 2, yPosition + 8);
+
+    doc.rect(margin + nameWidth + cellWidth, yPosition, cellWidth, cellHeight, "F");
+    doc.text("Percentage", margin + nameWidth + cellWidth + 2, yPosition + 8);
+
+    doc.rect(margin + nameWidth + cellWidth * 2, yPosition, cellWidth + 20, cellHeight, "F");
+    doc.text("Status", margin + nameWidth + cellWidth * 2 + 2, yPosition + 8);
+
+    yPosition += cellHeight;
+
+    // Student rows
+    studentGrades.forEach((student) => {
+      if (yPosition > 270) {
+        doc.addPage();
+        yPosition = 20;
+      }
+
+      const scoreColor = getScoreColor(student.percentage);
+      
+      // Name cell
+      doc.setFillColor(255, 255, 255);
+      doc.rect(margin, yPosition, nameWidth, cellHeight, "S");
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(9);
+      doc.text(student.name.substring(0, 18), margin + 2, yPosition + 8);
+
+      // Score cell with color
+      doc.setFillColor(scoreColor[0], scoreColor[1], scoreColor[2]);
+      doc.rect(margin + nameWidth, yPosition, cellWidth, cellHeight, "F");
+      doc.setTextColor(255, 255, 255);
+      doc.setFont("helvetica", "bold");
+      doc.text(`${student.score}/${student.total}`, margin + nameWidth + 2, yPosition + 8);
+
+      // Percentage cell with color
+      doc.rect(margin + nameWidth + cellWidth, yPosition, cellWidth, cellHeight, "F");
+      doc.text(`${student.percentage}%`, margin + nameWidth + cellWidth + 2, yPosition + 8);
+
+      // Status cell
+      doc.rect(margin + nameWidth + cellWidth * 2, yPosition, cellWidth + 20, cellHeight, "F");
+      const status = student.percentage >= 80 ? "Excellent" : 
+                     student.percentage >= 60 ? "Good" : 
+                     student.percentage >= 40 ? "Needs Help" : "At Risk";
+      doc.text(status, margin + nameWidth + cellWidth * 2 + 2, yPosition + 8);
+
+      doc.setTextColor(0, 0, 0);
+      yPosition += cellHeight;
+    });
+
+    // Summary statistics
+    yPosition += 15;
+    if (yPosition > 250) {
+      doc.addPage();
+      yPosition = 20;
+    }
+
+    const avgScore = Math.round(studentGrades.reduce((acc, s) => acc + s.percentage, 0) / studentGrades.length);
+    const passCount = studentGrades.filter(s => s.percentage >= 40).length;
+    const excellentCount = studentGrades.filter(s => s.percentage >= 80).length;
+
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(12);
+    doc.text("Summary Statistics", margin, yPosition);
+    yPosition += 10;
+
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(10);
+    doc.text(`Total Students: ${studentGrades.length}`, margin, yPosition);
+    yPosition += 7;
+    doc.text(`Class Average: ${avgScore}%`, margin, yPosition);
+    yPosition += 7;
+    doc.text(`Pass Rate: ${Math.round((passCount / studentGrades.length) * 100)}%`, margin, yPosition);
+    yPosition += 7;
+    doc.text(`Excellent Performers (80%+): ${excellentCount}`, margin, yPosition);
+
+    doc.save("Student_Grades_Heatmap.pdf");
+    toast.success("Grades heatmap PDF downloaded!");
+    setGradingDialogOpen(false);
+  };
+
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       {/* Header */}
@@ -223,8 +453,144 @@ export default function QuizGenerator() {
             <FileDown className="h-4 w-4" />
             Download Quiz PDF
           </Button>
+          <Button
+            onClick={() => setGradingDialogOpen(true)}
+            variant="outline"
+            className="gap-2 border-secondary text-secondary hover:bg-secondary/10"
+          >
+            <Upload className="h-4 w-4" />
+            Grade Answer Sheets
+          </Button>
         </div>
       </div>
+
+      {/* Grading Dialog */}
+      <Dialog open={gradingDialogOpen} onOpenChange={setGradingDialogOpen}>
+        <DialogContent className="max-w-3xl max-h-[90vh]">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-xl">
+              <Users className="h-5 w-5 text-primary" />
+              Grade Student Answer Sheets
+            </DialogTitle>
+            <DialogDescription>
+              Upload images or PDFs of student answer sheets. The system will grade them using the NCERT Class 5 Science answers.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            {/* File Upload */}
+            <div className="border-2 border-dashed border-primary/30 rounded-xl p-6 text-center hover:border-primary/50 transition-colors">
+              <input
+                type="file"
+                ref={fileInputRef}
+                onChange={handleFileUpload}
+                accept="image/*,.pdf"
+                multiple
+                className="hidden"
+              />
+              <Upload className="h-10 w-10 mx-auto text-primary/50 mb-3" />
+              <p className="text-sm text-muted-foreground mb-2">
+                Drop answer sheets here or click to upload
+              </p>
+              <Button
+                variant="outline"
+                onClick={() => fileInputRef.current?.click()}
+                className="gap-2"
+              >
+                <FileText className="h-4 w-4" />
+                Select Files
+              </Button>
+              {uploadedFiles.length > 0 && (
+                <p className="mt-3 text-sm text-primary font-medium">
+                  {uploadedFiles.length} file(s) selected
+                </p>
+              )}
+            </div>
+
+            {/* Uploaded Files List */}
+            {uploadedFiles.length > 0 && (
+              <div className="bg-muted/30 rounded-lg p-3">
+                <p className="text-sm font-medium mb-2">Uploaded Files:</p>
+                <div className="flex flex-wrap gap-2">
+                  {uploadedFiles.map((file, index) => (
+                    <span key={index} className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full">
+                      {file.name}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Grade Button */}
+            <Button
+              onClick={simulateGrading}
+              disabled={uploadedFiles.length === 0 || isGrading}
+              className="w-full gradient-mint text-primary-foreground gap-2"
+            >
+              {isGrading ? (
+                <>
+                  <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  Grading Answer Sheets...
+                </>
+              ) : (
+                <>
+                  <Sparkles className="h-4 w-4" />
+                  Grade All Answer Sheets
+                </>
+              )}
+            </Button>
+
+            {/* Results Preview */}
+            {studentGrades.length > 0 && (
+              <div className="space-y-3">
+                <h3 className="font-semibold text-foreground flex items-center gap-2">
+                  <CheckSquare className="h-4 w-4 text-secondary" />
+                  Grading Results Preview
+                </h3>
+                <ScrollArea className="h-48 rounded-lg border">
+                  <div className="p-3 space-y-2">
+                    {studentGrades.map((student, index) => (
+                      <div
+                        key={index}
+                        className="flex items-center justify-between p-3 rounded-lg"
+                        style={{ backgroundColor: `${getScoreColorHex(student.percentage)}15` }}
+                      >
+                        <div>
+                          <p className="font-medium text-sm">{student.name}</p>
+                          <p className="text-xs text-muted-foreground">{student.fileName}</p>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <span
+                            className="text-sm font-bold px-3 py-1 rounded-full text-white"
+                            style={{ backgroundColor: getScoreColorHex(student.percentage) }}
+                          >
+                            {student.score}/{student.total}
+                          </span>
+                          <span
+                            className="text-sm font-bold px-3 py-1 rounded-full text-white"
+                            style={{ backgroundColor: getScoreColorHex(student.percentage) }}
+                          >
+                            {student.percentage}%
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </ScrollArea>
+
+                {/* Download Heatmap PDF */}
+                <Button
+                  onClick={generateGradesPDF}
+                  className="w-full gradient-coral text-primary-foreground gap-2"
+                >
+                  <FileDown className="h-4 w-4" />
+                  Download Grades Heatmap PDF
+                </Button>
+              </div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Questions List */}
       <div className="space-y-3">
