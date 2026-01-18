@@ -6,8 +6,10 @@ import {
   FileText,
   MessageSquare,
   Calendar,
-  Sparkles
+  Sparkles,
+  ClipboardList
 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { StatCard } from "@/components/dashboard/StatCard";
 import { QuickActionCard } from "@/components/dashboard/QuickActionCard";
 import { PerformanceHeatmap } from "@/components/dashboard/PerformanceHeatmap";
@@ -15,6 +17,7 @@ import { CreateStudentDialog } from "@/components/students/CreateStudentDialog";
 import { CurriculumUploadDialog } from "@/components/curriculum/CurriculumUploadDialog";
 
 export default function Dashboard() {
+  const navigate = useNavigate();
   return (
     <div className="max-w-7xl mx-auto space-y-8">
       {/* Header */}
@@ -67,7 +70,15 @@ export default function Dashboard() {
       {/* Quick Actions */}
       <div>
         <h2 className="text-xl font-bold text-foreground mb-4">Quick Actions</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+          <QuickActionCard
+            title="Generate Quiz"
+            description="Create quizzes from NCERT Class 5 Science curriculum"
+            icon={ClipboardList}
+            actionLabel="Generate Quiz"
+            variant="accent"
+            onAction={() => navigate("/quiz-generator")}
+          />
           <QuickActionCard
             title="Create Lesson Plan"
             description="AI-assisted lesson planning with curriculum alignment"
@@ -87,7 +98,7 @@ export default function Dashboard() {
             description="Plan classroom activities and events"
             icon={Calendar}
             actionLabel="Add Event"
-            variant="accent"
+            variant="secondary"
           />
           <QuickActionCard
             title="AI Assistant"

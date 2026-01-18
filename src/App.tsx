@@ -7,6 +7,7 @@ import { AppLayout } from "@/components/layout/AppLayout";
 import Dashboard from "./pages/Dashboard";
 import StudentProgress from "./pages/StudentProgress";
 import AutomationHub from "./pages/AutomationHub";
+import QuizGenerator from "./pages/QuizGenerator";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -22,6 +23,7 @@ const App = () => (
             <Route path="/" element={<Dashboard />} />
             <Route path="/students" element={<StudentProgress />} />
             <Route path="/automation" element={<AutomationHub />} />
+            <Route path="/quiz-generator" element={<QuizGenerator />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AppLayout>
