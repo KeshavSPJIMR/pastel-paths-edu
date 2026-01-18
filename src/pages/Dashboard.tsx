@@ -70,7 +70,7 @@ export default function Dashboard() {
       {/* Quick Actions */}
       <div>
         <h2 className="text-xl font-bold text-foreground mb-4">Quick Actions</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           <QuickActionCard
             title="Generate Quiz"
             description="Create quizzes from NCERT Class 5 Science curriculum"
@@ -80,24 +80,10 @@ export default function Dashboard() {
             onAction={() => navigate("/quiz-generator")}
           />
           <QuickActionCard
-            title="Create Lesson Plan"
-            description="AI-assisted lesson planning with curriculum alignment"
-            icon={FileText}
-            actionLabel="Start Creating"
-            variant="primary"
-          />
-          <QuickActionCard
             title="Send Updates"
             description="Notify parents about student progress"
             icon={MessageSquare}
             actionLabel="Compose Message"
-            variant="secondary"
-          />
-          <QuickActionCard
-            title="Schedule Event"
-            description="Plan classroom activities and events"
-            icon={Calendar}
-            actionLabel="Add Event"
             variant="secondary"
           />
           <QuickActionCard
