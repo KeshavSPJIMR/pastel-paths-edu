@@ -1,11 +1,7 @@
 import { 
   Users, 
-  BookOpen, 
-  Clock, 
   Trophy,
-  FileText,
   MessageSquare,
-  Calendar,
   Sparkles,
   ClipboardList
 } from "lucide-react";
@@ -33,27 +29,13 @@ export default function Dashboard() {
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <StatCard
           title="Total Students"
           value={24}
           subtitle="3 new this week"
           icon={Users}
           gradient="coral"
-        />
-        <StatCard
-          title="Lessons This Week"
-          value={12}
-          subtitle="4 completed"
-          icon={BookOpen}
-          gradient="mint"
-        />
-        <StatCard
-          title="Hours Saved"
-          value="8.5"
-          subtitle="Via AI automation"
-          icon={Clock}
-          gradient="lavender"
         />
         <StatCard
           title="Class Average"
@@ -96,44 +78,6 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Today's Schedule */}
-      <div className="bg-card rounded-2xl p-6 shadow-card border border-border/50">
-        <h2 className="text-xl font-bold text-foreground mb-4">Today's Schedule</h2>
-        <div className="space-y-3">
-          {[
-            { time: "8:30 AM", activity: "Morning Circle", status: "completed" },
-            { time: "9:00 AM", activity: "Math - Addition & Subtraction", status: "current" },
-            { time: "10:30 AM", activity: "Reading Time", status: "upcoming" },
-            { time: "11:30 AM", activity: "Art & Crafts", status: "upcoming" },
-            { time: "1:00 PM", activity: "Science - Plants & Seeds", status: "upcoming" },
-          ].map((item, index) => (
-            <div 
-              key={index} 
-              className={`
-                flex items-center gap-4 p-3 rounded-xl transition-colors
-                ${item.status === 'current' ? 'bg-primary/10 border border-primary/20' : 
-                  item.status === 'completed' ? 'bg-muted/50' : 'hover:bg-muted/50'}
-              `}
-            >
-              <div className={`
-                h-10 w-20 rounded-lg flex items-center justify-center text-sm font-bold
-                ${item.status === 'current' ? 'gradient-coral text-primary-foreground' : 
-                  item.status === 'completed' ? 'bg-success/20 text-success-foreground' : 'bg-muted text-muted-foreground'}
-              `}>
-                {item.time}
-              </div>
-              <span className={`font-medium ${item.status === 'completed' ? 'text-muted-foreground line-through' : 'text-foreground'}`}>
-                {item.activity}
-              </span>
-              {item.status === 'current' && (
-                <span className="ml-auto text-xs font-semibold text-primary bg-primary/10 px-2 py-1 rounded-full">
-                  In Progress
-                </span>
-              )}
-            </div>
-          ))}
-        </div>
-      </div>
     </div>
   );
 }
