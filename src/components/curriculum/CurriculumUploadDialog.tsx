@@ -1,4 +1,5 @@
 import { useState, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import { Upload, FileText, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -55,6 +56,7 @@ const subjectLabels: Record<string, string> = {
 };
 
 export function CurriculumUploadDialog({ onCurriculumUploaded }: CurriculumUploadDialogProps) {
+  const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const [file, setFile] = useState<File | null>(null);
   const [fileContent, setFileContent] = useState<string>("");
@@ -239,91 +241,10 @@ export function CurriculumUploadDialog({ onCurriculumUploaded }: CurriculumUploa
     }
   };
 
-  const handleGenerateQuiz = async () => {
-    if (!fileContent || !subject || !gradeLevel) {
-      toast.error("Please upload a file and select subject/grade first");
-      return;
-    }
-
-    setIsProcessing(true);
-
-    try {
-      // Call QuizGen Engine API endpoint
-      const response = await fetch('/api/generate-quiz', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          curriculumText: fileContent,
-          gradeLevel,
-          subject,
-          curriculumStandard: curriculumStandard || undefined,
-          numberOfQuestions: 5,
-          difficulty: 'medium',
-          // TODO: Get teacherId from auth context
-          // teacherId: currentUser?.id,
-        }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ message: 'Failed to generate quiz' }));
-        throw new Error(errorData.message || errorData.error || 'Failed to generate quiz');
-      }
-
-      const result = await response.json();
-      const { quiz, assignment, metadata } = result;
-
-      // Show success message
-      toast.success("Quiz generated successfully!", {
-        description: `Generated ${quiz.questions.length} questions for ${subjectLabels[subject] || subject} (${gradeLabels[gradeLevel] || gradeLevel}).`,
-        duration: 5000,
-      });
-
-      // Log quiz result
-      console.log("Generated quiz:", quiz);
-      console.log("Saved assignment:", assignment);
-
-      // If quiz was saved to database, show assignment ID
-      if (assignment?.id) {
-        toast.info("Quiz saved to database", {
-          description: `Assignment ID: ${assignment.id}. You can now assign this quiz to students.`,
-          duration: 5000,
-        });
-      }
-
-      // Notify parent that quiz was generated
-      onCurriculumUploaded?.(
-        {
-          name: file?.name || 'curriculum.txt',
-          content: fileContent,
-          type: file?.type || 'text/plain',
-          size: file?.size || 0,
-        },
-        subject,
-        gradeLevel
-      );
-
-      // TODO: Show quiz preview in a modal or redirect to quiz editor
-      // For now, we'll just show success and the quiz is saved to database
-
-      // Reset form after successful generation
-      handleRemoveFile();
-      setSubject("");
-      setGradeLevel("");
-      setCurriculumStandard("");
-      setOpen(false);
-
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : "Failed to generate quiz";
-      toast.error("Quiz generation failed", {
-        description: errorMessage,
-        duration: 5000,
-      });
-      console.error("Quiz generation error:", error);
-    } finally {
-      setIsProcessing(false);
-    }
+  const handleGenerateQuiz = () => {
+    // Close dialog and navigate to quiz generator page
+    setOpen(false);
+    navigate("/quiz-generator");
   };
 
   return (
@@ -482,9 +403,8 @@ export function CurriculumUploadDialog({ onCurriculumUploaded }: CurriculumUploa
           <Button
             type="button"
             onClick={handleGenerateQuiz}
-            disabled={isProcessing || !fileContent || !subject || !gradeLevel}
           >
-            {isProcessing ? "Generating..." : "Generate Quiz"}
+            Generate Quiz
           </Button>
         </DialogFooter>
       </DialogContent>
